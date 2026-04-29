@@ -244,8 +244,8 @@ const favoritesLoading = ref(false)
 const defaultImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"%3E%3Crect fill="%23f5f7fa" width="200" height="200"/%3E%3Ctext x="100" y="110" text-anchor="middle" fill="%23c0c4cc" font-size="14"%3E暂无图片%3C/text%3E%3C/svg%3E'
 
 const creditRating = computed(() => {
-  const score = authStore.user?.creditScore || 0
-  return Math.round(score / 20)
+  const score = authStore.user?.creditScore || 5
+  return Math.round(score)
 })
 
 watch(
@@ -282,10 +282,8 @@ function getOrderStatusType(status: string) {
 async function fetchPublishedProducts() {
   publishedLoading.value = true
   try {
-    const response = await productApi.getList({ page: 1, limit: 100 })
-    publishedProducts.value = response.data.items.filter(
-      (p: any) => p.sellerId._id === authStore.user?._id
-    )
+    const response = await productApi.getMy()
+    publishedProducts.value = response.data.items
   } catch (error) {
     console.error('获取发布商品失败:', error)
   } finally {
@@ -321,7 +319,7 @@ async function fetchFavorites() {
 
 async function handleOnline(productId: string) {
   try {
-    await productApi.update(productId, {})
+    await productApi.update(productId, { status: '在售' as any })
     ElMessage.success('上架成功')
     fetchPublishedProducts()
   } catch (error) {
@@ -336,7 +334,7 @@ async function handleOffline(productId: string) {
       cancelButtonText: '取消',
       type: 'warning',
     })
-    await productApi.delete(productId)
+    await productApi.update(productId, { status: '已下架' as any })
     ElMessage.success('下架成功')
     fetchPublishedProducts()
   } catch (error: any) {

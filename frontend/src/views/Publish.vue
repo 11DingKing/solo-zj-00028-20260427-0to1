@@ -60,7 +60,11 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="分类" prop="category">
-              <el-select v-model="form.category" placeholder="请选择分类" style="width: 100%">
+              <el-select
+                v-model="form.category"
+                placeholder="请选择分类"
+                style="width: 100%"
+              >
                 <el-option
                   v-for="cat in ProductCategories"
                   :key="cat"
@@ -72,7 +76,11 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="成色" prop="condition">
-              <el-select v-model="form.condition" placeholder="请选择成色" style="width: 100%">
+              <el-select
+                v-model="form.condition"
+                placeholder="请选择成色"
+                style="width: 100%"
+              >
                 <el-option
                   v-for="cond in ProductConditions"
                   :key="cond"
@@ -158,126 +166,138 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, type FormInstance, type FormRules } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { productApi } from '@/api'
+import { ref, reactive, type FormInstance, type FormRules } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import { productApi } from "@/api";
 import {
   ProductCategories,
   ProductConditions,
   TransactionMethods,
-} from '@/types'
-import type { CreateProductForm, ProductCategory, ProductCondition, TransactionMethod } from '@/types'
+} from "@/types";
+import type {
+  CreateProductForm,
+  ProductCategory,
+  ProductCondition,
+  TransactionMethod,
+} from "@/types";
 
-const router = useRouter()
-const formRef = ref<FormInstance>()
-const fileInput = ref<HTMLInputElement | null>(null)
-const loading = ref(false)
-const createdProductId = ref<string | null>(null)
+const router = useRouter();
+const formRef = ref<FormInstance>();
+const fileInput = ref<HTMLInputElement | null>(null);
+const loading = ref(false);
+const createdProductId = ref<string | null>(null);
 
 const defaultForm: CreateProductForm = {
-  title: '',
-  description: '',
+  title: "",
+  description: "",
   originalPrice: 0,
   price: 0,
   category: undefined as unknown as ProductCategory,
   condition: undefined as unknown as ProductCondition,
   transactionMethod: undefined as unknown as TransactionMethod,
   images: [],
-}
+};
 
-const form = reactive<CreateProductForm>({ ...defaultForm })
+const form = reactive<CreateProductForm>({ ...defaultForm });
 
 const rules: FormRules = {
   title: [
-    { required: true, message: '请输入商品标题', trigger: 'blur' },
-    { min: 1, max: 100, message: '标题长度应在1-100个字符之间', trigger: 'blur' },
+    { required: true, message: "请输入商品标题", trigger: "blur" },
+    {
+      min: 1,
+      max: 100,
+      message: "标题长度应在1-100个字符之间",
+      trigger: "blur",
+    },
   ],
   description: [
-    { required: true, message: '请输入商品描述', trigger: 'blur' },
-    { max: 2000, message: '描述不能超过2000个字符', trigger: 'blur' },
+    { required: true, message: "请输入商品描述", trigger: "blur" },
+    { max: 2000, message: "描述不能超过2000个字符", trigger: "blur" },
   ],
   originalPrice: [
-    { required: true, message: '请输入原价', trigger: 'blur' },
-    { type: 'number', min: 0, message: '原价不能为负数', trigger: 'blur' },
+    { required: true, message: "请输入原价", trigger: "blur" },
+    { type: "number", min: 0, message: "原价不能为负数", trigger: "blur" },
   ],
   price: [
-    { required: true, message: '请输入出售价', trigger: 'blur' },
-    { type: 'number', min: 0, message: '出售价不能为负数', trigger: 'blur' },
+    { required: true, message: "请输入出售价", trigger: "blur" },
+    { type: "number", min: 0, message: "出售价不能为负数", trigger: "blur" },
   ],
-  category: [
-    { required: true, message: '请选择商品分类', trigger: 'change' },
-  ],
-  condition: [
-    { required: true, message: '请选择商品成色', trigger: 'change' },
-  ],
+  category: [{ required: true, message: "请选择商品分类", trigger: "change" }],
+  condition: [{ required: true, message: "请选择商品成色", trigger: "change" }],
   transactionMethod: [
-    { required: true, message: '请选择交易方式', trigger: 'change' },
+    { required: true, message: "请选择交易方式", trigger: "change" },
   ],
-}
+};
 
 function triggerUpload() {
   if (fileInput.value) {
-    fileInput.value.click()
+    fileInput.value.click();
   }
 }
 
 async function handleFileChange(event: Event) {
-  const target = event.target as HTMLInputElement
-  const files = Array.from(target.files || [])
+  const target = event.target as HTMLInputElement;
+  const files = Array.from(target.files || []);
 
-  if (files.length === 0) return
+  if (files.length === 0) return;
 
-  const remainingSlots = 6 - form.images.length
-  const filesToUpload = files.slice(0, remainingSlots)
+  const remainingSlots = 6 - form.images.length;
+  const filesToUpload = files.slice(0, remainingSlots);
 
   if (!createdProductId.value) {
     try {
       const response = await productApi.create({
-        title: form.title || '临时商品',
-        description: form.description || '临时描述',
+        title: form.title || "临时商品",
+        description: form.description || "临时描述",
         originalPrice: form.originalPrice || 0,
         price: form.price || 0,
-        category: form.category || '其他',
-        condition: form.condition || '全新',
-        transactionMethod: form.transactionMethod || '都可以',
-      })
-      createdProductId.value = response.data._id
+        category: form.category || "其他",
+        condition: form.condition || "全新",
+        transactionMethod: form.transactionMethod || "都可以",
+      });
+      createdProductId.value = response.data._id;
     } catch (error: any) {
-      ElMessage.error(error.response?.data?.error || '创建商品失败')
-      return
+      ElMessage.error(error.response?.data?.error || "创建商品失败");
+      return;
     }
   }
 
   try {
-    const response = await productApi.uploadImages(createdProductId.value, filesToUpload)
-    form.images = response.data.images
-    ElMessage.success('图片上传成功')
+    const response = await productApi.uploadImages(
+      createdProductId.value,
+      filesToUpload,
+    );
+    form.images = response.data.images;
+    ElMessage.success("图片上传成功");
   } catch (error: any) {
-    ElMessage.error(error.response?.data?.error || '图片上传失败')
+    ElMessage.error(error.response?.data?.error || "图片上传失败");
   }
 
   if (fileInput.value) {
-    fileInput.value.value = ''
+    fileInput.value.value = "";
   }
 }
 
 function removeImage(index: number) {
-  if (!createdProductId.value) return
-  productApi.deleteImage(createdProductId.value, index).then((response) => {
-    form.images = response.data.images
-    ElMessage.success('图片已删除')
-  }).catch(() => {
-    form.images.splice(index, 1)
-  })
+  if (!createdProductId.value) return;
+  productApi
+    .deleteImage(createdProductId.value, index)
+    .then((response) => {
+      form.images = response.data.images;
+      ElMessage.success("图片已删除");
+    })
+    .catch(() => {
+      form.images.splice(index, 1);
+    });
 }
 
 async function handleSubmit() {
-  if (!formRef.value) return
+  if (!formRef.value) return;
 
   await formRef.value.validate(async (valid) => {
     if (valid) {
-      loading.value = true
+      loading.value = true;
       try {
         if (createdProductId.value) {
           await productApi.update(createdProductId.value, {
@@ -288,7 +308,7 @@ async function handleSubmit() {
             category: form.category,
             condition: form.condition,
             transactionMethod: form.transactionMethod,
-          })
+          });
         } else {
           const response = await productApi.create({
             title: form.title,
@@ -298,27 +318,27 @@ async function handleSubmit() {
             category: form.category,
             condition: form.condition,
             transactionMethod: form.transactionMethod,
-          })
-          createdProductId.value = response.data._id
+          });
+          createdProductId.value = response.data._id;
         }
 
-        ElMessage.success('商品发布成功')
-        router.push('/profile?tab=products')
+        ElMessage.success("商品发布成功");
+        router.push("/profile?tab=published");
       } catch (error: any) {
-        ElMessage.error(error.response?.data?.error || '发布失败')
+        ElMessage.error(error.response?.data?.error || "发布失败");
       } finally {
-        loading.value = false
+        loading.value = false;
       }
     }
-  })
+  });
 }
 
 function resetForm() {
   if (formRef.value) {
-    formRef.value.resetFields()
+    formRef.value.resetFields();
   }
-  Object.assign(form, defaultForm)
-  createdProductId.value = null
+  Object.assign(form, defaultForm);
+  createdProductId.value = null;
 }
 </script>
 
