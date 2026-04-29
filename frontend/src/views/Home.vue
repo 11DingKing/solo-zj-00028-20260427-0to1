@@ -95,11 +95,11 @@ import { productApi } from "@/api";
 import type { Product } from "@/types";
 import {
   Collection,
-  Notebook,
+  Document,
   Monitor,
   HomeFilled,
-  TShirt,
-  Basketball,
+  Box,
+  Trophy,
   More,
   TrendCharts,
 } from "@element-plus/icons-vue";
@@ -134,11 +134,11 @@ const banners = [
 
 function getCategoryIcon(category: string) {
   const iconMap: Record<string, any> = {
-    教材: Notebook,
+    教材: Document,
     电子产品: Monitor,
     生活用品: HomeFilled,
-    服饰: TShirt,
-    运动器材: Basketball,
+    服饰: Box,
+    运动器材: Trophy,
     其他: More,
   };
   return iconMap[category] || More;

@@ -20,7 +20,13 @@ const products = new Hono();
 products.get("/hot", async (c) => {
   try {
     const cacheKey = "hot_products";
-    const cached = await redis.get(cacheKey);
+    let cached = null;
+
+    try {
+      cached = await redis.get(cacheKey);
+    } catch (redisError) {
+      console.warn("Redis 缓存读取失败（跳过缓存）:", redisError);
+    }
 
     if (cached) {
       return c.json(JSON.parse(cached));
@@ -35,7 +41,11 @@ products.get("/hot", async (c) => {
         model: User,
       });
 
-    await redis.set(cacheKey, JSON.stringify(hotProducts), "EX", 300);
+    try {
+      await redis.set(cacheKey, JSON.stringify(hotProducts), "EX", 300);
+    } catch (redisError) {
+      console.warn("Redis 缓存写入失败:", redisError);
+    }
 
     return c.json(hotProducts);
   } catch (error) {
@@ -47,7 +57,13 @@ products.get("/hot", async (c) => {
 products.get("/categories", async (c) => {
   try {
     const cacheKey = "category_stats";
-    const cached = await redis.get(cacheKey);
+    let cached = null;
+
+    try {
+      cached = await redis.get(cacheKey);
+    } catch (redisError) {
+      console.warn("Redis 缓存读取失败（跳过缓存）:", redisError);
+    }
 
     if (cached) {
       return c.json(JSON.parse(cached));
@@ -68,7 +84,11 @@ products.get("/categories", async (c) => {
       count: stats.find((s: any) => s._id === cat)?.count || 0,
     }));
 
-    await redis.set(cacheKey, JSON.stringify(result), "EX", 300);
+    try {
+      await redis.set(cacheKey, JSON.stringify(result), "EX", 300);
+    } catch (redisError) {
+      console.warn("Redis 缓存写入失败:", redisError);
+    }
 
     return c.json(result);
   } catch (error) {
