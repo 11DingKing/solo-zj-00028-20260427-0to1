@@ -11,7 +11,9 @@
 
     <div class="section">
       <div class="section-header">
-        <h3><el-icon><Fire /></el-icon> 热门商品</h3>
+        <h3>
+          <el-icon><TrendCharts /></el-icon> 热门商品
+        </h3>
         <router-link to="/products" class="view-more">查看更多 ></router-link>
       </div>
       <div class="product-grid">
@@ -34,7 +36,10 @@
               <h4 class="product-title">{{ product.title }}</h4>
               <div class="product-price">
                 <span class="current-price">¥{{ product.price }}</span>
-                <span class="original-price" v-if="product.originalPrice > product.price">
+                <span
+                  class="original-price"
+                  v-if="product.originalPrice > product.price"
+                >
                   ¥{{ product.originalPrice }}
                 </span>
               </div>
@@ -45,7 +50,10 @@
             </div>
           </el-card>
         </router-link>
-        <el-card v-if="hotProducts.length === 0 && loading" class="loading-card">
+        <el-card
+          v-if="hotProducts.length === 0 && loading"
+          class="loading-card"
+        >
           <el-skeleton :rows="4" animated />
         </el-card>
         <div v-if="hotProducts.length === 0 && !loading" class="empty-state">
@@ -56,7 +64,9 @@
 
     <div class="section">
       <div class="section-header">
-        <h3><el-icon><Collection /></el-icon> 商品分类</h3>
+        <h3>
+          <el-icon><Collection /></el-icon> 商品分类
+        </h3>
       </div>
       <div class="category-grid">
         <router-link
@@ -66,7 +76,9 @@
         >
           <el-card class="category-card" :body-style="{ padding: '20px' }">
             <div class="category-icon">
-              <el-icon :size="32">{{ getCategoryIcon(category.category) }}</el-icon>
+              <el-icon :size="32">{{
+                getCategoryIcon(category.category)
+              }}</el-icon>
             </div>
             <div class="category-name">{{ category.category }}</div>
             <div class="category-count">{{ category.count }} 件商品</div>
@@ -78,11 +90,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { productApi } from '@/api'
-import type { Product } from '@/types'
+import { ref, onMounted } from "vue";
+import { productApi } from "@/api";
+import type { Product } from "@/types";
 import {
-  ShoppingCart,
   Collection,
   Notebook,
   Monitor,
@@ -90,57 +101,73 @@ import {
   TShirt,
   Basketball,
   More,
-  Fire,
-} from '@element-plus/icons-vue'
+  TrendCharts,
+} from "@element-plus/icons-vue";
 
-const hotProducts = ref<Product[]>([])
-const categories = ref<{ category: string; count: number }[]>([])
-const loading = ref(true)
+const hotProducts = ref<Product[]>([]);
+const categories = ref<{ category: string; count: number }[]>([]);
+const loading = ref(true);
 
-const defaultImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"%3E%3Crect fill="%23f5f7fa" width="200" height="200"/%3E%3Ctext x="100" y="110" text-anchor="middle" fill="%23c0c4cc" font-size="14"%3E暂无图片%3C/text%3E%3C/svg%3E'
+const defaultImage =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"%3E%3Crect fill="%23f5f7fa" width="200" height="200"/%3E%3Ctext x="100" y="110" text-anchor="middle" fill="%23c0c4cc" font-size="14"%3E暂无图片%3C/text%3E%3C/svg%3E';
 
 const banners = [
-  { id: 1, title: '校园二手交易平台', desc: '闲置物品，变废为宝', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-  { id: 2, title: '安全交易，放心买卖', desc: '实名认证，信用担保', color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-  { id: 3, title: '快速发布，轻松出手', desc: '简单几步，发布商品', color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-]
+  {
+    id: 1,
+    title: "校园二手交易平台",
+    desc: "闲置物品，变废为宝",
+    color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  },
+  {
+    id: 2,
+    title: "安全交易，放心买卖",
+    desc: "实名认证，信用担保",
+    color: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+  },
+  {
+    id: 3,
+    title: "快速发布，轻松出手",
+    desc: "简单几步，发布商品",
+    color: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+  },
+];
 
 function getCategoryIcon(category: string) {
   const iconMap: Record<string, any> = {
-    '教材': Notebook,
-    '电子产品': Monitor,
-    '生活用品': HomeFilled,
-    '服饰': TShirt,
-    '运动器材': Basketball,
-    '其他': More,
-  }
-  return iconMap[category] || More
+    教材: Notebook,
+    电子产品: Monitor,
+    生活用品: HomeFilled,
+    服饰: TShirt,
+    运动器材: Basketball,
+    其他: More,
+  };
+  return iconMap[category] || More;
 }
 
 async function fetchHotProducts() {
   try {
-    const response = await productApi.getHot()
-    hotProducts.value = response.data.slice(0, 8)
+    const response = await productApi.getHot();
+    hotProducts.value = response.data.slice(0, 8);
   } catch (error) {
-    console.error('获取热门商品失败:', error)
+    console.error("获取热门商品失败:", error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 async function fetchCategories() {
   try {
-    const response = await productApi.getCategories()
-    categories.value = response.data
+    const response = await productApi.getCategories();
+    categories.value = response.data;
   } catch (error) {
-    console.error('获取分类失败:', error)
+    console.error("获取分类失败:", error);
   }
 }
 
 onMounted(() => {
-  fetchHotProducts()
-  fetchCategories()
-})
+  fetchHotProducts();
+  fetchCategories();
+});
 </script>
 
 <style scoped>

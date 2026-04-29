@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serve } from '@hono/node-server'
 import { connectMongo } from './db/mongo.js'
+import { connectRedis } from './db/redis.js'
 import { config } from './config.js'
 
 import authRoutes from './routes/auth.js'
@@ -51,15 +52,19 @@ app.notFound((c) => {
 
 async function startServer() {
   await connectMongo()
+  connectRedis()
 
-  console.log(`Server is running on port ${config.port}`)
+  console.log(`🚀 服务启动...`)
+  console.log(`📍 端口: ${config.port}`)
+  console.log(`🌐 环境: ${process.env.NODE_ENV || 'development'}`)
+
   serve(
     {
       fetch: app.fetch,
       port: config.port,
     },
     (info) => {
-      console.log(`Listening on http://localhost:${info.port}`)
+      console.log(`✅ 服务已启动: http://localhost:${info.port}`)
     }
   )
 }
